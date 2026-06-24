@@ -1,0 +1,71 @@
+# ==========================================
+# Language Specific / 语言相关
+# ==========================================
+
+# Go
+bin/
+*.test
+coverage.out
+
+# ==========================================
+# Build & Packaging / 构建与打包
+# ==========================================
+dist/
+build/
+*.egg-info/
+.eggs/
+*.whl
+
+# ==========================================
+# Environment & Secrets / 环境与密钥
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# Credentials / 凭证文件
+*.pem
+*.key
+*.cer
+credentials.json
+token.json
+client_secret.json
+
+# ==========================================
+# Logs & Outputs / 日志与输出
+# ==========================================
+*.log
+logs/
+reports/*.json
+reports/*.md
+
+# ==========================================
+# Editor & IDE / 编辑器
+# ==========================================
+.vscode/
+.idea/
+.fleet/
+*.swp
+*.swo
+*~
+
+# ==========================================
+# System files / 系统级缓存
+# ==========================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+._*
+.Spotlight-V100/
+.Trashes/
+
+# ==========================================
+# Docker & Custom / 容器与自定义
+# ==========================================
+.claude/
+docker-data/
+Information/
+docs/
+config.json
+CLAUDE.md
