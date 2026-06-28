@@ -63,9 +63,9 @@ ehthumbs.db
 # ==========================================
 # Docker & Custom / 容器与自定义
 # ==========================================
-.claude/
 docker-data/
 Information/
 docs/
 config.json
+AGENTS.md
 CLAUDE.md
