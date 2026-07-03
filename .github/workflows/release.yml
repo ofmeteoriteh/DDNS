@@ -30,6 +30,8 @@ jobs:
       - name: Build binaries / 交叉编译
         # 编译 9 个目标平台 / Build for 9 target platforms
         run: |
+          VERSION="${{ github.ref_name }}"
+          LDFLAGS="-s -w -X main.version=${VERSION}"
           platforms=(
             "linux/amd64"
             "linux/arm64"
@@ -49,7 +51,7 @@ jobs:
               output="${output}.exe"
             fi
             echo "Building ${os}/${arch}..."
-            GOOS="$os" GOARCH="$arch" go build -o "$output" .
+            GOOS="$os" GOARCH="$arch" go build -ldflags "$LDFLAGS" -o "$output" .
           done
 
       - name: Package binaries / 打包
