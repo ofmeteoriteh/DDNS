@@ -3,10 +3,17 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
+    # 仅当 Go 相关文件变动时触发，纯文档 commit 不浪费 CI
+    # Only trigger when Go-related files change; skip CI for docs-only commits
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/ci.yml"
   pull_request:
-    branches: [main, "dev/**"]
-    # 仅当 Go 相关文件变动时触发，纯文档 PR 不浪费 CI
-    # Only trigger when Go-related files change; skip CI for docs-only PRs
+    branches: [main]
     paths:
       - "**.go"
       - "go.mod"

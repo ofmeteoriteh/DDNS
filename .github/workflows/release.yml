@@ -28,7 +28,7 @@ jobs:
         run: go mod download
 
       - name: Build binaries / 交叉编译
-        # 编译 8 个目标平台 / Build for 8 target platforms
+        # 编译 9 个目标平台 / Build for 9 target platforms
         run: |
           platforms=(
             "linux/amd64"
