@@ -6,37 +6,77 @@ import (
 	"os"
 
 	"github.com/ofmeteoriteh/ddns/cloudflare"
+	"github.com/ofmeteoriteh/ddns/config"
 	"github.com/ofmeteoriteh/ddns/getip"
 )
 
 func main() {
-	ctx := context.Background()
-
-	// 读取环境变量 / Read environment variables
-	name := os.Getenv("DDNS_NAME")
-	key := os.Getenv("CLOUDFLARE_API_KEY")
-	zoneID := os.Getenv("CLOUDFLARE_ZONE_ID")
-
-	// 获取公网 IP / Fetch public IPs
-	ipv4ip, err_v4 := getip.GetIPv4IP(ctx)
-	ipv6ip, err_v6 := getip.GetIPv6IP(ctx)
-
-	if err_v4 != nil && err_v6 != nil {
-		fmt.Println("获取公网 IP 失败 / Failed to get public IP:", err_v4, "|", err_v6)
-		os.Exit(1)
+	if len(os.Args) > 1 && os.Args[1] == "setup" {
+		runSetup()
+		return
 	}
 
-	if err_v4 == nil {
-		// IPv4 成功，更新 A 记录 / IPv4 succeeded, update A record
-		if err := cloudflare.DDNS(ctx, key, zoneID, name, "A", ipv4ip.String()); err != nil {
-			fmt.Println("更新 A 记录失败 / Failed to update A record:", err)
+	// 解析 --dry-run / Parse --dry-run flag
+	dryRun := false
+	for _, arg := range os.Args[1:] {
+		if arg == "--dry-run" {
+			dryRun = true
 		}
 	}
 
-	if err_v6 == nil {
-		// IPv6 成功，更新 AAAA 记录 / IPv6 succeeded, update AAAA record
-		if err := cloudflare.DDNS(ctx, key, zoneID, name, "AAAA", ipv6ip.String()); err != nil {
-			fmt.Println("更新 AAAA 记录失败 / Failed to update AAAA record:", err)
+	if dryRun {
+		fmt.Println("── DRY RUN / 模拟运行 ──")
+	}
+
+	cfg, err := config.Load("config.json")
+	if err != nil {
+		fmt.Println("配置文件不存在，请先运行 / Config not found, please run: ddns setup")
+		os.Exit(1)
+	}
+
+	ctx := context.Background()
+
+	// 获取公网 IP / Fetch public IPs
+	ipv4ip, errV4 := getip.GetIPv4IP(ctx)
+	ipv6ip, errV6 := getip.GetIPv6IP(ctx)
+
+	if errV4 != nil && errV6 != nil {
+		fmt.Println("获取公网 IP 失败 / Failed to get public IP:", errV4, "|", errV6)
+		os.Exit(1)
+	}
+
+	if errV4 == nil {
+		fmt.Println("IPv4:", ipv4ip)
+	}
+	if errV6 == nil {
+		fmt.Println("IPv6:", ipv6ip)
+	}
+
+	// 遍历所有条目 / Iterate all entries
+	for _, entry := range cfg.Entries {
+		for _, t := range entry.Types {
+			var ip string
+			switch t {
+			case "A":
+				if errV4 != nil {
+					fmt.Printf("  [%s] IPv4 不可用，跳过 / IPv4 unavailable, skipping\n", entry.Name)
+					continue
+				}
+				ip = ipv4ip.String()
+			case "AAAA":
+				if errV6 != nil {
+					fmt.Printf("  [%s] IPv6 不可用，跳过 / IPv6 unavailable, skipping\n", entry.Name)
+					continue
+				}
+				ip = ipv6ip.String()
+			}
+
+			result, err := cloudflare.DDNS(ctx, entry.Key, entry.ZoneID, entry.Name, t, ip, entry.Proxied, dryRun)
+			if err != nil {
+				fmt.Printf("  [%s %s] 失败 / failed: %v\n", entry.Name, t, err)
+			} else {
+				fmt.Printf("  [%s %s] %s\n", entry.Name, t, result)
+			}
 		}
 	}
 }
