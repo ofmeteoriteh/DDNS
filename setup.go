@@ -29,7 +29,7 @@ func runSetup() {
 	for {
 		var name, key string
 		_ = survey.AskOne(&survey.Input{Message: "API Key 名称 / Name (e.g. main):"}, &name, survey.WithValidator(survey.Required))
-		_ = survey.AskOne(&survey.Input{Message: "API Key / Token:"}, &key, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Password{Message: "API Key / Token:"}, &key, survey.WithValidator(survey.Required))
 		cfg.Keys = append(cfg.Keys, config.APIKey{Name: name, Key: key})
 
 		var more bool
