@@ -80,7 +80,7 @@ func getDNSRecords(ctx context.Context, key string, url string) (DDNSRecord, err
 	if err != nil {
 		return DDNSRecord{}, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 检查 HTTP 状态码 / Check HTTP status code
 	if err := checkResponse(resp); err != nil {
@@ -125,7 +125,7 @@ func postDNSRecord(ctx context.Context, key string, url string, record Record) e
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 检查 HTTP 状态码 / Check HTTP status code
 	if err := checkResponse(resp); err != nil {
@@ -167,7 +167,7 @@ func putDNSRecord(ctx context.Context, key string, url string, record Record) er
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 检查 HTTP 状态码 / Check HTTP status code
 	if err := checkResponse(resp); err != nil {

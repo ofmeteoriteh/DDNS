@@ -71,13 +71,13 @@ func fetchIP(ctx context.Context, wantV6 bool) (netip.Addr, error) {
 
 		// 校验是否成功 / Check response status
 		if resp.StatusCode != http.StatusOK {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			continue
 		}
 
 		// 读取响应体 / Read response body
 		body, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if err != nil {
 			continue
 		}

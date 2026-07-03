@@ -35,7 +35,7 @@ func VerifyAPI(ctx context.Context, key string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 反序列化响应 / Deserialize response
 	var cf cloudflare

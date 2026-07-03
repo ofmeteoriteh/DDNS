@@ -16,7 +16,7 @@ func runSetup() {
 	// 检查已有配置 / Check existing config
 	if _, err := os.Stat("config.json"); err == nil {
 		var overwrite bool
-		survey.AskOne(&survey.Confirm{
+		_ = survey.AskOne(&survey.Confirm{
 			Message: "config.json 已存在，是否覆盖？/ config.json exists, overwrite?",
 		}, &overwrite)
 		if !overwrite {
@@ -28,12 +28,12 @@ func runSetup() {
 	fmt.Println("\n── API Keys ──")
 	for {
 		var name, key string
-		survey.AskOne(&survey.Input{Message: "API Key 名称 / Name (e.g. main):"}, &name, survey.WithValidator(survey.Required))
-		survey.AskOne(&survey.Input{Message: "API Key / Token:"}, &key, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "API Key 名称 / Name (e.g. main):"}, &name, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "API Key / Token:"}, &key, survey.WithValidator(survey.Required))
 		cfg.Keys = append(cfg.Keys, config.APIKey{Name: name, Key: key})
 
 		var more bool
-		survey.AskOne(&survey.Confirm{Message: "添加更多 API Key？/ Add another API Key?"}, &more)
+		_ = survey.AskOne(&survey.Confirm{Message: "添加更多 API Key？/ Add another API Key?"}, &more)
 		if !more {
 			break
 		}
@@ -43,13 +43,13 @@ func runSetup() {
 	fmt.Println("\n── Zones ──")
 	for {
 		var name, domain, zoneID string
-		survey.AskOne(&survey.Input{Message: "Zone 名称 / Name (e.g. ofqfw-top):"}, &name, survey.WithValidator(survey.Required))
-		survey.AskOne(&survey.Input{Message: "域名 / Domain (e.g. ofqfw.top):"}, &domain, survey.WithValidator(survey.Required))
-		survey.AskOne(&survey.Input{Message: "Zone ID:"}, &zoneID, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "Zone 名称 / Name (e.g. ofqfw-top):"}, &name, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "域名 / Domain (e.g. ofqfw.top):"}, &domain, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "Zone ID:"}, &zoneID, survey.WithValidator(survey.Required))
 		cfg.Zones = append(cfg.Zones, config.Zone{Name: name, Domain: domain, ZoneID: zoneID})
 
 		var more bool
-		survey.AskOne(&survey.Confirm{Message: "添加更多 Zone？/ Add another Zone?"}, &more)
+		_ = survey.AskOne(&survey.Confirm{Message: "添加更多 Zone？/ Add another Zone?"}, &more)
 		if !more {
 			break
 		}
@@ -68,30 +68,30 @@ func runSetup() {
 
 	for {
 		var prefix string
-		survey.AskOne(&survey.Input{
+		_ = survey.AskOne(&survey.Input{
 			Message: "前缀 / Prefix (e.g. legendvps-singapore-ddns，留空为根域名 / leave empty for root):",
 		}, &prefix)
 
 		var zoneChoice string
-		survey.AskOne(&survey.Select{
+		_ = survey.AskOne(&survey.Select{
 			Message: "域名 / Domain:",
 			Options: zoneNames,
 		}, &zoneChoice)
 
 		var keyChoice string
-		survey.AskOne(&survey.Select{
+		_ = survey.AskOne(&survey.Select{
 			Message: "API Key:",
 			Options: keyNames,
 		}, &keyChoice)
 
 		var types []string
-		survey.AskOne(&survey.MultiSelect{
+		_ = survey.AskOne(&survey.MultiSelect{
 			Message: "记录类型 / Record types:",
 			Options: []string{"A (IPv4)", "AAAA (IPv6)"},
 		}, &types)
 
 		var proxied bool
-		survey.AskOne(&survey.Confirm{
+		_ = survey.AskOne(&survey.Confirm{
 			Message: "启用 Cloudflare 代理（橙色云）？/ Enable Cloudflare proxy (orange cloud)?",
 		}, &proxied)
 
@@ -114,7 +114,7 @@ func runSetup() {
 		})
 
 		var more bool
-		survey.AskOne(&survey.Confirm{Message: "添加更多条目？/ Add another entry?"}, &more)
+		_ = survey.AskOne(&survey.Confirm{Message: "添加更多条目？/ Add another entry?"}, &more)
 		if !more {
 			break
 		}
@@ -129,13 +129,13 @@ func runSetup() {
 
 	// systemd service
 	var genSystemd bool
-	survey.AskOne(&survey.Confirm{
+	_ = survey.AskOne(&survey.Confirm{
 		Message: "生成 systemd service 文件？/ Generate systemd service file?",
 	}, &genSystemd)
 
 	if genSystemd {
 		var binPath string
-		survey.AskOne(&survey.Input{
+		_ = survey.AskOne(&survey.Input{
 			Message: "二进制路径 / Binary path:",
 			Default: "/opt/ddns/ddns",
 		}, &binPath)
