@@ -24,6 +24,13 @@ type DDNSRecord struct {
 	ResultInfo ResultInfo
 }
 
+// SingleRecordResponse 创建/更新 DNS 记录的响应结构 / Response structure for create/update DNS record
+type SingleRecordResponse struct {
+	Success bool       `json:"success"`
+	Errors  []APIError `json:"errors"`
+	Result  Record
+}
+
 // Record DNS 记录核心字段 / Core fields of a DNS record
 type Record struct {
 	ID      string `json:"id"`
@@ -133,7 +140,7 @@ func postDNSRecord(ctx context.Context, key string, url string, record Record) e
 	}
 
 	// 检查 Cloudflare success 字段 / Check Cloudflare success field
-	var result DDNSRecord
+	var result SingleRecordResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
@@ -175,7 +182,7 @@ func putDNSRecord(ctx context.Context, key string, url string, record Record) er
 	}
 
 	// 检查 Cloudflare success 字段 / Check Cloudflare success field
-	var result DDNSRecord
+	var result SingleRecordResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
 	}
