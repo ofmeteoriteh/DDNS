@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/ofmeteoriteh/ddns/cloudflare"
 	"github.com/ofmeteoriteh/ddns/config"
 )
 
@@ -30,6 +33,30 @@ func runSetup() {
 		var name, key string
 		_ = survey.AskOne(&survey.Input{Message: "API Key 名称 / Name (e.g. main):"}, &name, survey.WithValidator(survey.Required))
 		_ = survey.AskOne(&survey.Password{Message: "API Key / Token:"}, &key, survey.WithValidator(survey.Required))
+
+		// 验证 API Key / Verify API key
+		fmt.Printf("验证 API Key \"%s\"... / Verifying API Key \"%s\"...\n", name, name)
+		valid, err := cloudflare.VerifyAPI(context.Background(), key)
+		if err != nil {
+			fmt.Printf("验证失败 / Verification failed: %v\n", err)
+			var retry bool
+			_ = survey.AskOne(&survey.Confirm{Message: "重试？/ Retry?"}, &retry)
+			if retry {
+				continue
+			}
+			return
+		}
+		if !valid {
+			fmt.Println("API Key 无效或不是 active 状态 / API Key is invalid or not active")
+			var retry bool
+			_ = survey.AskOne(&survey.Confirm{Message: "重试？/ Retry?"}, &retry)
+			if retry {
+				continue
+			}
+			return
+		}
+		fmt.Println("验证通过 / Verified")
+
 		cfg.Keys = append(cfg.Keys, config.APIKey{Name: name, Key: key})
 
 		var more bool
@@ -140,6 +167,8 @@ func runSetup() {
 			Default: "/opt/ddns/ddns",
 		}, &binPath)
 
+		workDir := filepath.Dir(binPath)
+
 		service := fmt.Sprintf(`[Unit]
 Description=DDNS Client
 After=network-online.target
@@ -148,22 +177,36 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 ExecStart=%s
-WorkingDirectory=/opt/ddns
-Restart=on-failure
-RestartSec=5s
+WorkingDirectory=%s
 
 [Install]
 WantedBy=multi-user.target
-`, binPath)
+`, binPath, workDir)
 
 		if err := os.WriteFile("ddns.service", []byte(service), 0644); err != nil {
 			fmt.Println("生成 service 文件失败 / Failed to generate service file:", err)
 			return
 		}
-		fmt.Println("已生成 / Generated ddns.service")
-		fmt.Println("  cp ddns.service /etc/systemd/system/")
+
+		timer := `[Unit]
+Description=Run DDNS every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
+`
+		if err := os.WriteFile("ddns.timer", []byte(timer), 0644); err != nil {
+			fmt.Println("生成 timer 文件失败 / Failed to generate timer file:", err)
+			return
+		}
+
+		fmt.Println("已生成 / Generated ddns.service + ddns.timer")
+		fmt.Println("  cp ddns.service ddns.timer /etc/systemd/system/")
 		fmt.Println("  systemctl daemon-reload")
-		fmt.Println("  systemctl enable --now ddns")
+		fmt.Println("  systemctl enable --now ddns.timer")
 	}
 }
 

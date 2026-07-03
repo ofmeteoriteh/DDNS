@@ -68,4 +68,5 @@ Information/
 docs/
 config.json
 AGENTS.md
-CLAUDE.mdddns
+CLAUDE.md
+ddns
