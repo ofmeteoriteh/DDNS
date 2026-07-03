@@ -43,8 +43,8 @@ func runSetup() {
 	fmt.Println("\n── Zones ──")
 	for {
 		var name, domain, zoneID string
-		_ = survey.AskOne(&survey.Input{Message: "Zone 名称 / Name (e.g. ofqfw-top):"}, &name, survey.WithValidator(survey.Required))
-		_ = survey.AskOne(&survey.Input{Message: "域名 / Domain (e.g. ofqfw.top):"}, &domain, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "Zone 名称 / Name (e.g. my-zone):"}, &name, survey.WithValidator(survey.Required))
+		_ = survey.AskOne(&survey.Input{Message: "域名 / Domain (e.g. example.com):"}, &domain, survey.WithValidator(survey.Required))
 		_ = survey.AskOne(&survey.Input{Message: "Zone ID:"}, &zoneID, survey.WithValidator(survey.Required))
 		cfg.Zones = append(cfg.Zones, config.Zone{Name: name, Domain: domain, ZoneID: zoneID})
 
@@ -69,7 +69,7 @@ func runSetup() {
 	for {
 		var prefix string
 		_ = survey.AskOne(&survey.Input{
-			Message: "前缀 / Prefix (e.g. legendvps-singapore-ddns，留空为根域名 / leave empty for root):",
+			Message: "前缀 / Prefix (e.g. my-server-ddns，留空为根域名 / leave empty for root):",
 		}, &prefix)
 
 		var zoneChoice string
