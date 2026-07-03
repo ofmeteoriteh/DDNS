@@ -60,7 +60,8 @@ jobs:
             tar -czf "dist/${f}.tar.gz" "$f"
           done
           for f in ddns-windows-*; do
-            zip "dist/${f}.zip" "$f"
+            archive="${f%.exe}"
+            zip "dist/${archive}.zip" "$f"
           done
 
       - name: Create Release / 创建 Release
