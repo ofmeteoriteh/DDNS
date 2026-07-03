@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions / 提问
-    url: https://github.com/ofmeteoriteh/ddns/discussions
-    about: Ask questions or discuss ideas here. / 在这里提问或讨论想法。
+    url: https://github.com/ofmeteoriteh/ddns/issues
+    about: Open an issue to ask a question or discuss ideas. / 开一个 issue 来提问或讨论想法。

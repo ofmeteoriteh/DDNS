@@ -29,7 +29,7 @@ You may write in English or Chinese — either is fine.
 
 ## Checklist / 检查清单
 
-- [ ] This PR targets a `dev/*` branch (not `main`). / 此 PR 指向 `dev/*` 分支（而非 `main`）。
+- [ ] This PR targets `main`. / 此 PR 指向 `main`。
 - [ ] Commits follow Conventional Commits. / 提交信息遵循 Conventional Commits 规范。
 - [ ] No secrets, API keys, or tokens are committed. / 未提交任何密钥、API Key 或 token。
 - [ ] Code and scripts are commented bilingually where relevant. / 代码与脚本在需要处有中英双语注释。
