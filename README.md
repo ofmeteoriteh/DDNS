@@ -3,7 +3,7 @@
 <!-- Badges / 徽章 -->
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go&logoColor=white)](https://go.dev/)
-[![CI](https://github.com/ofmeteoriteh/ddns/actions/workflows/ci.yml/badge.svg)](https://github.com/ofmeteoriteh/ddns/actions/workflows/ci.yml)
+[![CI](https://github.com/ofmeteoriteh/DDNS/actions/workflows/ci.yml/badge.svg)](https://github.com/ofmeteoriteh/DDNS/actions/workflows/ci.yml)
 
 > *A minimal, self-hosted DDNS client — Cloudflare only, IPv4 and IPv6*
 >
@@ -61,9 +61,9 @@ getip                cloudflare
 
 ### 1. Download / 下载
 
-Download the appropriate binary for your platform from [Releases](https://github.com/ofmeteoriteh/ddns/releases).
+Download the appropriate binary for your platform from [Releases](https://github.com/ofmeteoriteh/DDNS/releases).
 
-从 [Releases](https://github.com/ofmeteoriteh/ddns/releases) 下载对应平台的二进制文件。
+从 [Releases](https://github.com/ofmeteoriteh/DDNS/releases) 下载对应平台的二进制文件。
 
 ### 2. Setup / 配置
 
