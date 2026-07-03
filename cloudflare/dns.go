@@ -223,17 +223,18 @@ func DDNS(ctx context.Context, key string, zoneID string, name string, recordTyp
 		return "created", nil
 	} else if dns.Result[0].Content != ip {
 		// IP 变化，覆盖记录 / IP changed, overwrite record
+		oldIP := dns.Result[0].Content
 		record := dns.Result[0]
 		record.Content = ip
 		url2 := "https://api.cloudflare.com/client/v4/zones/" + zoneID + "/dns_records/" + record.ID
 		if dryRun {
-			return fmt.Sprintf("updated %s → %s (dry-run)", record.Content, ip), nil
+			return fmt.Sprintf("updated %s → %s (dry-run)", oldIP, ip), nil
 		}
 		err = putDNSRecord(ctx, key, url2, record)
 		if err != nil {
 			return "", fmt.Errorf("update DNS record: %w", err)
 		}
-		return fmt.Sprintf("updated %s → %s", dns.Result[0].Content, ip), nil
+		return fmt.Sprintf("updated %s → %s", oldIP, ip), nil
 	}
 
 	// IP 未变化，跳过 / IP unchanged, skip
