@@ -1,0 +1,72 @@
+# 打 tag 时自动交叉编译并发布到 GitHub Release
+# Cross-compile and publish to GitHub Release on tag push
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write # 需要写权限创建 Release / write permission needed to create releases
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout / 检出代码
+        uses: actions/checkout@v6
+
+      - name: Setup Go / 安装 Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies / 下载依赖
+        run: go mod download
+
+      - name: Build binaries / 交叉编译
+        # 编译 8 个目标平台 / Build for 8 target platforms
+        run: |
+          platforms=(
+            "linux/amd64"
+            "linux/arm64"
+            "linux/arm"
+            "linux/386"
+            "windows/amd64"
+            "windows/arm64"
+            "windows/386"
+            "darwin/amd64"
+            "darwin/arm64"
+          )
+          for platform in "${platforms[@]}"; do
+            os="${platform%/*}"
+            arch="${platform#*/}"
+            output="ddns-${os}-${arch}"
+            if [ "$os" = "windows" ]; then
+              output="${output}.exe"
+            fi
+            echo "Building ${os}/${arch}..."
+            GOOS="$os" GOARCH="$arch" go build -o "$output" .
+          done
+
+      - name: Package binaries / 打包
+        # tar.gz for Unix-like, zip for Windows
+        run: |
+          mkdir -p dist
+          for f in ddns-linux-* ddns-darwin-*; do
+            tar -czf "dist/${f}.tar.gz" "$f"
+          done
+          for f in ddns-windows-*; do
+            zip "dist/${f}.zip" "$f"
+          done
+
+      - name: Create Release / 创建 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}

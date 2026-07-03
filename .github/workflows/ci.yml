@@ -1,0 +1,84 @@
+# Go CI：在 PR 合入 main 前验证代码可编译、格式正确、lint 无误
+# Go CI: verify build / fmt / vet / lint before a PR is merged into main
+name: CI
+
+on:
+  pull_request:
+    branches: [main, "dev/**"]
+    # 仅当 Go 相关文件变动时触发，纯文档 PR 不浪费 CI
+    # Only trigger when Go-related files change; skip CI for docs-only PRs
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/ci.yml"
+
+# 默认只读权限即可，CI 不需要写仓库
+# Read-only is enough; CI does not write to the repo
+permissions:
+  contents: read
+
+# 同一 PR 的新 push 自动取消上一次未完成的运行，省额度
+# Cancel in-progress runs for the same PR when a new commit is pushed
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: 构建 + 格式检查 + 测试 / build + gofmt + test ──
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout / 检出代码
+        uses: actions/checkout@v6
+
+      - name: Setup Go / 安装 Go
+        uses: actions/setup-go@v6
+        with:
+          # 直接读 go.mod 中声明的版本，始终与项目对齐
+          # Read the version declared in go.mod; always in sync with the project
+          go-version-file: go.mod
+          cache: true # 缓存模块与构建产物 / cache modules and build artifacts
+
+      - name: Download dependencies / 下载依赖
+        run: go mod download
+
+      - name: Verify gofmt / 检查代码格式
+        # gofmt -l 列出格式不规范的文件；有输出则失败
+        # gofmt -l lists badly-formatted files; fail if any output
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "以下文件未通过 gofmt / The following files are not gofmt-compliant:"
+            echo "$unformatted"
+            echo "请运行 'gofmt -w .' 修复 / Run 'gofmt -w .' to fix"
+            exit 1
+          fi
+
+      - name: Go vet / 静态检查
+        run: go vet ./...
+
+      - name: Build / 编译
+        run: go build ./...
+
+      - name: Test / 测试
+        run: go test ./...
+
+  # ── Job 2: golangci-lint（与上面的 job 并行运行）/ lint, runs in parallel ──
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout / 检出代码
+        uses: actions/checkout@v6
+
+      - name: Setup Go / 安装 Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.12
