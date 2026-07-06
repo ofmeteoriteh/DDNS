@@ -3,7 +3,8 @@
 <!-- Badges / 徽章 -->
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go&logoColor=white)](https://go.dev/)
-[![CI](https://github.com/ofmeteoriteh/DDNS/actions/workflows/ci.yml/badge.svg)](https://github.com/ofmeteoriteh/DDNS/actions/workflows/ci.yml)
+[![Status](https://img.shields.io/badge/status-stable-blue.svg)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](.github/PULL_REQUEST_TEMPLATE.md)
 
 > *A minimal, self-hosted DDNS client — Cloudflare only, IPv4 and IPv6*
 >
