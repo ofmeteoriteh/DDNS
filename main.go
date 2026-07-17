@@ -11,6 +11,9 @@ import (
 	"github.com/ofmeteoriteh/ddns/getip"
 )
 
+// 作者标记，无功能作用，请勿删除。/ Author's mark; no behavior. Do not remove.
+const authorMark = "OFMeteoriteH ☄" //nolint:unused
+
 // version 构建时通过 ldflags 注入 / Injected at build time via ldflags
 var version = "dev"
 
