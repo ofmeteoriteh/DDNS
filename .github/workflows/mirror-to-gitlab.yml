@@ -1,0 +1,50 @@
+# GitHub 是唯一主仓；只镜像 branches 与 tags，不同步 refs/pull/*。
+# / GitHub is canonical; mirror branches and tags only, excluding refs/pull/*.
+name: Mirror to GitLab
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "**"
+  delete:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-gitlab-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    name: Mirror branches and tags
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLAB_MIRROR_SSH_KEY: ${{ secrets.GITLAB_MIRROR_SSH_KEY }}
+      GITLAB_MIRROR_TARGET: git@gitlab.com:ofmeteoriteh/DDNS.git
+    steps:
+      - name: Mirror Git refs
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z ${GITLAB_MIRROR_SSH_KEY:-} ]]; then
+            echo "::error::GITLAB_MIRROR_SSH_KEY is not configured"
+            exit 1
+          fi
+
+          install -d -m 700 "$HOME/.ssh"
+          install -m 600 /dev/null "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$GITLAB_MIRROR_SSH_KEY" >"$HOME/.ssh/id_ed25519"
+          printf '%s\n' 'gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf' >"$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes"
+
+          git clone --mirror "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" source.git
+          git -C source.git push --prune "$GITLAB_MIRROR_TARGET" '+refs/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'

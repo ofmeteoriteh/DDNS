@@ -1,0 +1,44 @@
+# 长期无活动的 issue / PR 自动打标签提醒，但不自动关闭
+# Auto-label long-inactive issues / PRs as stale, but never auto-close
+# 配合 "不承诺响应" 的维护定位：只标记，不关闭，方便人工筛选
+# Matches the "response not guaranteed" stance: mark only, no close
+
+name: Mark stale issues and PRs
+
+on:
+  schedule:
+    # 每天 UTC 01:00 运行 (Asia/Shanghai 09:00)
+    # Runs daily at 01:00 UTC (09:00 Asia/Shanghai)
+    - cron: "0 1 * * *"
+  workflow_dispatch: {} # 允许手动触发 / allow manual trigger
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # 60 天无活动后标记为 stale / mark stale after 60 days of inactivity
+          days-before-stale: 60
+          # -1 表示永不自动关闭 / -1 means never auto-close
+          days-before-close: -1
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
+          stale-issue-message: >
+            This issue has had no activity for 60 days and is now marked as stale.
+            It will NOT be closed automatically — this is a hobby project and
+            responses are not guaranteed. Feel free to add a comment to keep it active.
+            此 issue 已 60 天无活动，现标记为 stale。它**不会**被自动关闭——
+            本项目为兴趣项目，不保证响应。如需保持活跃，可留言。
+          stale-pr-message: >
+            This pull request has had no activity for 60 days and is now marked as stale.
+            It will NOT be closed automatically. Feel free to rebase or comment to keep it active.
+            此 PR 已 60 天无活动，现标记为 stale。它**不会**被自动关闭。
+            如需保持活跃，可 rebase 或留言。
+          # 有这些标签的不被标记为 stale / never mark items with these labels
+          exempt-issue-labels: "pinned,security,roadmap"
+          exempt-pr-labels: "pinned,security"
